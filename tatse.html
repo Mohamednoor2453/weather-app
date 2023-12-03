@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather App</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="script.js" defer></script>
+</head>
+<body>
+    <div class="search">     
+        <form id="weatherForm">
+            <input type="text" placeholder="Enter city.." name="search" id="input">
+            <button type="submit" id="btn1">Find Weather</button>
+        </form>
+    </div>
+    <div class="info">
+        <p>Find weather prediction for the next 3 days</p>
+        <button class="btn2" id="btn2">Get Prediction</button>
+        <ul id="weatherdetails"></ul>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const weatherForm = document.querySelector("#weatherForm");
+            const input = document.querySelector("#input");
+            const weatherDetails = document.querySelector("#weatherdetails");
+
+            weatherForm.addEventListener("submit", function (e) {
+                e.preventDefault();
+                displayWeatherInfo();
+            });
+
+            function displayWeatherInfo() {
+                const cityName = input.value.trim().toLowerCase();
+
+                if (cityName === "") {
+                    alert("Enter a city, please.");
+                } else {
+                    fetch("weather.json")
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error(`HTTP error! Status: ${response.status}`);
+                            }
+                            return response.json();
+                        })
+                        .then(data => getWeatherDetails(data, cityName))
+                        .catch(error => {
+                            throw new Error(`Error fetching data: ${error.message}`);
+                        });
+                }
+            }
+
+            function getWeatherDetails(data, cityName) {
+                const cityData = data[cityName];
+
+                if (cityData) {
+                    // Assuming each city has an array of weather details
+                    const weatherDetailsHTML = cityData.map(details => {
+                        return `<li>Temperature: ${details.temperature}, Humidity: ${details.humidity}</li>`;
+                    }).join("");
+
+                    weatherDetails.innerHTML = weatherDetailsHTML;
+                } else {
+                    alert(`Weather details not available for ${cityName}`);
+                }
+            }
+        });
+    </script>
+</body>
+</html>
